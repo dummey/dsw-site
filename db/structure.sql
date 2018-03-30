@@ -267,6 +267,39 @@ ALTER SEQUENCE companies_id_seq OWNED BY companies.id;
 
 
 --
+-- Name: feedback; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE feedback (
+    id bigint NOT NULL,
+    rating integer,
+    comments text,
+    submission_id bigint,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: feedback_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE feedback_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: feedback_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE feedback_id_seq OWNED BY feedback.id;
+
+
+--
 -- Name: general_inquiries; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1088,6 +1121,13 @@ ALTER TABLE ONLY companies ALTER COLUMN id SET DEFAULT nextval('companies_id_seq
 
 
 --
+-- Name: feedback id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY feedback ALTER COLUMN id SET DEFAULT nextval('feedback_id_seq'::regclass);
+
+
+--
 -- Name: general_inquiries id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1281,6 +1321,14 @@ ALTER TABLE ONLY comments
 
 ALTER TABLE ONLY companies
     ADD CONSTRAINT companies_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: feedback feedback_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY feedback
+    ADD CONSTRAINT feedback_pkey PRIMARY KEY (id);
 
 
 --
@@ -1528,6 +1576,13 @@ CREATE UNIQUE INDEX index_companies_on_name ON companies USING btree (name);
 
 
 --
+-- Name: index_feedback_on_submission_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_feedback_on_submission_id ON feedback USING btree (submission_id);
+
+
+--
 -- Name: index_homepage_ctas_on_track_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1760,6 +1815,14 @@ ALTER TABLE ONLY attendee_messages
 
 
 --
+-- Name: feedback fk_rails_7c9bf47fa8; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY feedback
+    ADD CONSTRAINT fk_rails_7c9bf47fa8 FOREIGN KEY (submission_id) REFERENCES submissions(id);
+
+
+--
 -- Name: volunteership_shifts fk_rails_8ff1f98788; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1924,6 +1987,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180316161624'),
 ('20180316194849'),
 ('20180321221958'),
-('20180323161809');
+('20180323161809'),
+('20180330161739');
 
 
