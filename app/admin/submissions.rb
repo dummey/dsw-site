@@ -27,7 +27,9 @@ ActiveAdmin.register Submission do
                 :slides_url,
                 :video_url,
                 :live_stream_url,
-                :company_id
+                :company_id,
+                :open_to_collaborators,
+                :from_underrepresented_group
 
   controller do
     def scoped_collection
