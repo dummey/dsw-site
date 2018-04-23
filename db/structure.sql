@@ -276,7 +276,8 @@ CREATE TABLE feedback (
     comments text,
     submission_id bigint,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    user_id bigint
 );
 
 
@@ -1583,6 +1584,13 @@ CREATE INDEX index_feedback_on_submission_id ON feedback USING btree (submission
 
 
 --
+-- Name: index_feedback_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_feedback_on_user_id ON feedback USING btree (user_id);
+
+
+--
 -- Name: index_homepage_ctas_on_track_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1780,6 +1788,14 @@ ALTER TABLE ONLY volunteerships
 
 ALTER TABLE ONLY registrations
     ADD CONSTRAINT fk_rails_2e0658f554 FOREIGN KEY (user_id) REFERENCES users(id);
+
+
+--
+-- Name: feedback fk_rails_3ffcea2ae3; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY feedback
+    ADD CONSTRAINT fk_rails_3ffcea2ae3 FOREIGN KEY (user_id) REFERENCES users(id);
 
 
 --
@@ -1988,6 +2004,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180316194849'),
 ('20180321221958'),
 ('20180323161809'),
-('20180330161739');
+('20180330161739'),
+('20180420151548');
 
 

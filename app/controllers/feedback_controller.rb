@@ -1,6 +1,9 @@
 class FeedbackController < ApplicationController
+
+  before_action :authenticate_user!, only: %i(create)
+
   def create
-    @feedback = Feedback.new(feedback_params)
+    @feedback = current_user.feedback.new(feedback_params)
 
     if @feedback.save
       flash[:notice] = 'Thank you for submitting feedback!'
@@ -16,6 +19,7 @@ class FeedbackController < ApplicationController
   def feedback_params
     params.require(:feedback).permit(:rating,
                                      :comments,
+                                     :user_id,
                                      :submission_id)
   end
 end

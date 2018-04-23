@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-feature 'giving feedback on a submission' do
+feature 'Giving feedback on a session' do
 
   let(:user) do
     create(:user, email: 'test@example.com',
@@ -54,21 +54,10 @@ feature 'giving feedback on a submission' do
       expect(submission.feedback.first.comments).to eq 'here are my comments'
     end
 
-    scenario 'User provides feedback for a session after being prompted to sign in' do
+    scenario 'User cannot provide feedback if not signed in' do
       visit '/schedule'
       click_on(class: 'scheduled-session')
-      expect(page).to have_content('Sign in to leave feedback')
-
-      fill_in 'E-mail Address', with: 'test@example.com'
-      fill_in 'Password', with: 'password', match: :prefer_exact
-      click_button 'Sign In'
-      expect(page).to have_content('Leave feedback')
-
-      select 'Good', from: 'Please rate this session'
-      fill_in 'Comments', with: 'here are my comments'
-      click_button 'Share Feedback'
-      expect(page).to have_content('Thank you for submitting feedback!')
-
+      expect(page).to_not have_content('Please rate this session')
       # add something here to ensure 1 feedback/session
     end
   end
