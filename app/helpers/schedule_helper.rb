@@ -16,4 +16,8 @@ module ScheduleHelper
       '5' => 'Outstanding' }.invert
   end
 
+  def in_or_post_week?
+    AnnualSchedule.in_week? || AnnualSchedule.post_week?
+  end
+
 end
