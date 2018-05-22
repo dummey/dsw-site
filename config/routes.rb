@@ -57,6 +57,8 @@ Rails.application.routes.draw do
     resources :comments, only: :create
   end
 
+  resources :venues, except: [:destroy]
+
   resource :dashboard, only: :show
 
   resources :newsletter_signups, only: :create

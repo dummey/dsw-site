@@ -96,14 +96,14 @@ Track.reset_column_information
     color: 'basecamp-session',
     is_submittable: false,
     is_voteable: false,
-    email_alias: 'info@denverstartupweek.org',
+    email_alias: 'info@denverstartupweek.org'
   },
   'Social Events' => {
     icon: 'martini',
     color: 'red',
     is_submittable: false,
     is_voteable: false,
-    email_alias: 'info@denverstartupweek.org',
+    email_alias: 'info@denverstartupweek.org'
   }
 }.each do |track_name, attrs|
   t = Track.where(name: track_name).first_or_initialize
@@ -372,7 +372,7 @@ PitchContest::Entry.reset_column_information
     name: 'Clingless',
     year: 2017,
     video_url: 'https://youtu.be/XwX-EzXuanM'
-  },
+  }
 
 ].each do |attrs|
   e = PitchContest::Entry.where(name: attrs[:name]).first_or_initialize
@@ -386,22 +386,22 @@ end
 
 AnnualSchedule.where(year: 2013).first_or_create!(
   week_start_at: Date.parse('2013-09-16').freeze,
-  week_end_at: Date.parse('2013-09-20').freeze,
+  week_end_at: Date.parse('2013-09-20').freeze
 )
 
 AnnualSchedule.where(year: 2014).first_or_create!(
   week_start_at: Date.parse('2014-09-15').freeze,
-  week_end_at: Date.parse('2014-09-19').freeze,
+  week_end_at: Date.parse('2014-09-19').freeze
 )
 
 AnnualSchedule.where(year: 2015).first_or_create!(
   week_start_at: Date.parse('2015-09-28').freeze,
-  week_end_at: Date.parse('2015-10-02').freeze,
+  week_end_at: Date.parse('2015-10-02').freeze
 )
 
 AnnualSchedule.where(year: 2016).first_or_create!(
   week_start_at: Date.parse('2016-09-12').freeze,
-  week_end_at: Date.parse('2016-09-16').freeze,
+  week_end_at: Date.parse('2016-09-16').freeze
 )
 
 AnnualSchedule.where(year: 2017).first_or_create!(
@@ -429,5 +429,25 @@ AnnualSchedule.where(year: 2018).first_or_create!(
   voting_close_at: Date.parse('2018-05-18').freeze,
   registration_open_at: Date.parse('2018-07-15').freeze,
   week_start_at: Date.parse('2018-09-24').freeze,
-  week_end_at: Date.parse('2018-09-28').freeze,
+  week_end_at: Date.parse('2018-09-28').freeze
 )
+
+Venue.reset_column_information
+[
+  {
+    name: 'Union Station',
+    description: 'Denver Union Station is the main railway station and central transportation hub in Denver, Colorado.',
+    address: '1701 Wynkoop Street',
+    city: 'Denver',
+    state: 'Colorado',
+    capacity: 1000
+  }
+].each do |attrs|
+  v = Venue.where(name: attrs[:name]).first_or_initialize
+
+  # Skip if the record has been updated since it was populated
+  next if v.updated_at && v.updated_at > v.created_at
+
+  v.assign_attributes(attrs)
+  v.save!
+end
