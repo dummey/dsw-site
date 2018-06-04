@@ -58,7 +58,9 @@ Rails.application.routes.draw do
   end
 
   resources :venues, except: [:destroy]
-
+  
+  resources :feedback, only: %i(new create)
+  
   resource :dashboard, only: :show
 
   resources :newsletter_signups, only: :create
