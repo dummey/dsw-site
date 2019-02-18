@@ -431,6 +431,16 @@ AnnualSchedule.where(year: 2018).first_or_create!(
   week_end_at: Date.parse('2018-09-28').freeze
 )
 
+AnnualSchedule.where(year: Date.today.year).first_or_create!(
+  cfp_open_at: Date.new(Date.today.year, 4, 4).freeze,
+  cfp_close_at: Date.new(Date.today.year, 4, 30).freeze,
+  voting_open_at: Date.new(Date.today.year, 5, 2).freeze,
+  voting_close_at: Date.new(Date.today.year, 5, 18).freeze,
+  registration_open_at: Date.new(Date.today.year, 7, 15).freeze,
+  week_start_at: Date.new(Date.today.year, 9, 24).freeze,
+  week_end_at: Date.new(Date.today.year, 9, 28).freeze
+)
+
 AttendeeGoal.reset_column_information
 {
   inspiration: 'Find inspiration',
@@ -450,3 +460,10 @@ AttendeeGoal.reset_column_information
   t.assign_attributes(description: description)
   t.save!
 end
+
+User.where(uid: 'admin').first_or_create!(
+  password: 'password',
+  name: 'admin',
+  email: 'admin@admin.com',
+  is_admin: true,
+)
