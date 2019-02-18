@@ -50,6 +50,20 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
 
 
+--
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -88,6 +102,43 @@ CREATE SEQUENCE public.active_admin_comments_id_seq
 --
 
 ALTER SEQUENCE public.active_admin_comments_id_seq OWNED BY public.active_admin_comments.id;
+
+
+--
+-- Name: ambassadors; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ambassadors (
+    id bigint NOT NULL,
+    first_name character varying NOT NULL,
+    last_name character varying NOT NULL,
+    company character varying NOT NULL,
+    title character varying NOT NULL,
+    location character varying NOT NULL,
+    year integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    avatar character varying
+);
+
+
+--
+-- Name: ambassadors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ambassadors_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ambassadors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ambassadors_id_seq OWNED BY public.ambassadors.id;
 
 
 --
@@ -132,6 +183,39 @@ CREATE TABLE public.ar_internal_metadata (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
+
+
+--
+-- Name: attendee_goals; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.attendee_goals (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    description character varying NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: attendee_goals_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.attendee_goals_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: attendee_goals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.attendee_goals_id_seq OWNED BY public.attendee_goals.id;
 
 
 --
@@ -508,6 +592,38 @@ ALTER SEQUENCE public.pitch_contest_votes_id_seq OWNED BY public.pitch_contest_v
 
 
 --
+-- Name: registration_attendee_goals; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.registration_attendee_goals (
+    id bigint NOT NULL,
+    registration_id bigint NOT NULL,
+    attendee_goal_id bigint NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: registration_attendee_goals_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.registration_attendee_goals_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: registration_attendee_goals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.registration_attendee_goals_id_seq OWNED BY public.registration_attendee_goals.id;
+
+
+--
 -- Name: registrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -708,7 +824,7 @@ CREATE TABLE public.submissions (
     format character varying(255),
     location character varying(255),
     time_range character varying(255),
-    title character varying(255),
+    title text,
     description text,
     notes text,
     created_at timestamp without time zone NOT NULL,
@@ -738,7 +854,9 @@ CREATE TABLE public.submissions (
     cached_similar_item_ids integer[] DEFAULT '{}'::integer[],
     live_stream_url character varying,
     company_id bigint,
-    coc_acknowledgement boolean DEFAULT false NOT NULL
+    coc_acknowledgement boolean DEFAULT false NOT NULL,
+    pitch_qualifying boolean DEFAULT false NOT NULL,
+    registrant_count integer DEFAULT 0 NOT NULL
 );
 
 
@@ -776,7 +894,8 @@ CREATE TABLE public.tracks (
     is_submittable boolean DEFAULT false NOT NULL,
     description text,
     color character varying,
-    is_voteable boolean DEFAULT true NOT NULL
+    is_voteable boolean DEFAULT true NOT NULL,
+    video_url character varying
 );
 
 
@@ -818,7 +937,7 @@ CREATE TABLE public.users (
     uid character varying(255),
     name character varying(255),
     email character varying(255),
-    description character varying(255),
+    description text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     is_admin boolean DEFAULT false NOT NULL,
@@ -1091,10 +1210,24 @@ ALTER TABLE ONLY public.active_admin_comments ALTER COLUMN id SET DEFAULT nextva
 
 
 --
+-- Name: ambassadors id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ambassadors ALTER COLUMN id SET DEFAULT nextval('public.ambassadors_id_seq'::regclass);
+
+
+--
 -- Name: annual_schedules id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.annual_schedules ALTER COLUMN id SET DEFAULT nextval('public.annual_schedules_id_seq'::regclass);
+
+
+--
+-- Name: attendee_goals id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.attendee_goals ALTER COLUMN id SET DEFAULT nextval('public.attendee_goals_id_seq'::regclass);
 
 
 --
@@ -1172,6 +1305,13 @@ ALTER TABLE ONLY public.pitch_contest_entries ALTER COLUMN id SET DEFAULT nextva
 --
 
 ALTER TABLE ONLY public.pitch_contest_votes ALTER COLUMN id SET DEFAULT nextval('public.pitch_contest_votes_id_seq'::regclass);
+
+
+--
+-- Name: registration_attendee_goals id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.registration_attendee_goals ALTER COLUMN id SET DEFAULT nextval('public.registration_attendee_goals_id_seq'::regclass);
 
 
 --
@@ -1281,6 +1421,14 @@ ALTER TABLE ONLY public.active_admin_comments
 
 
 --
+-- Name: ambassadors ambassadors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ambassadors
+    ADD CONSTRAINT ambassadors_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: annual_schedules annual_schedules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1294,6 +1442,14 @@ ALTER TABLE ONLY public.annual_schedules
 
 ALTER TABLE ONLY public.ar_internal_metadata
     ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: attendee_goals attendee_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.attendee_goals
+    ADD CONSTRAINT attendee_goals_pkey PRIMARY KEY (id);
 
 
 --
@@ -1382,6 +1538,14 @@ ALTER TABLE ONLY public.pitch_contest_entries
 
 ALTER TABLE ONLY public.pitch_contest_votes
     ADD CONSTRAINT pitch_contest_votes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: registration_attendee_goals registration_attendee_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.registration_attendee_goals
+    ADD CONSTRAINT registration_attendee_goals_pkey PRIMARY KEY (id);
 
 
 --
@@ -1514,7 +1678,7 @@ CREATE INDEX fulltext_submissions_description_english ON public.submissions USIN
 -- Name: fulltext_submissions_title_english; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX fulltext_submissions_title_english ON public.submissions USING gin (to_tsvector('english'::regconfig, (title)::text));
+CREATE INDEX fulltext_submissions_title_english ON public.submissions USING gin (to_tsvector('english'::regconfig, title));
 
 
 --
@@ -1522,6 +1686,41 @@ CREATE INDEX fulltext_submissions_title_english ON public.submissions USING gin 
 --
 
 CREATE INDEX fulltext_users_name_english ON public.users USING gin (to_tsvector('english'::regconfig, (name)::text));
+
+
+--
+-- Name: idx_companies_name_contains; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_companies_name_contains ON public.companies USING gin (name public.gin_trgm_ops);
+
+
+--
+-- Name: idx_submissions_description_contains; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_submissions_description_contains ON public.submissions USING gin (description public.gin_trgm_ops);
+
+
+--
+-- Name: idx_submissions_title_contains; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_submissions_title_contains ON public.submissions USING gin (title public.gin_trgm_ops);
+
+
+--
+-- Name: idx_users_email_contains; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_users_email_contains ON public.users USING gin (email public.gin_trgm_ops);
+
+
+--
+-- Name: idx_users_name_contains; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_users_name_contains ON public.users USING gin (name public.gin_trgm_ops);
 
 
 --
@@ -1620,6 +1819,20 @@ CREATE INDEX index_pitch_contest_votes_on_pitch_contest_entry_id ON public.pitch
 --
 
 CREATE INDEX index_pitch_contest_votes_on_user_id ON public.pitch_contest_votes USING btree (user_id);
+
+
+--
+-- Name: index_registration_attendee_goals_on_attendee_goal_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_registration_attendee_goals_on_attendee_goal_id ON public.registration_attendee_goals USING btree (attendee_goal_id);
+
+
+--
+-- Name: index_registration_attendee_goals_on_registration_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_registration_attendee_goals_on_registration_id ON public.registration_attendee_goals USING btree (registration_id);
 
 
 --
@@ -1770,6 +1983,14 @@ CREATE UNIQUE INDEX unique_schema_migrations ON public.schema_migrations USING b
 
 
 --
+-- Name: registration_attendee_goals fk_rails_00326415bc; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.registration_attendee_goals
+    ADD CONSTRAINT fk_rails_00326415bc FOREIGN KEY (registration_id) REFERENCES public.registrations(id);
+
+
+--
 -- Name: pitch_contest_votes fk_rails_051f1858c3; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1839,6 +2060,14 @@ ALTER TABLE ONLY public.volunteership_shifts
 
 ALTER TABLE ONLY public.attendee_messages
     ADD CONSTRAINT fk_rails_555266c0e1 FOREIGN KEY (submission_id) REFERENCES public.submissions(id);
+
+
+--
+-- Name: registration_attendee_goals fk_rails_7145612043; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.registration_attendee_goals
+    ADD CONSTRAINT fk_rails_7145612043 FOREIGN KEY (attendee_goal_id) REFERENCES public.attendee_goals(id);
 
 
 --
@@ -2019,8 +2248,19 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180420151548'),
 ('20180503152209'),
 ('20180518145838'),
-('20180522000916'),
-('20180527202206'),
-('20180604045548');
+('20180718044128'),
+('20180718045251'),
+('20180718142543'),
+('20180813001629'),
+('20180910142243'),
+('20180910175949'),
+('20180916230057'),
+('20180918152617'),
+('20180919041913'),
+('20180919042513'),
+('20180919050424'),
+('20180923214023'),
+('20180924163222'),
+('20180925205310');
 
 

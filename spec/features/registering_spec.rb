@@ -27,7 +27,8 @@ feature 'Registering to attend' do
            start_day: 2,
            start_hour: 10,
            end_day: 2,
-           end_hour: 11.5)
+           end_hour: 11.5,
+           year: AnnualSchedule.current.year)
   end
 
   describe 'when registration is open' do
@@ -37,6 +38,8 @@ feature 'Registering to attend' do
 
     before do
       create(:company, name: 'Example.com')
+      create(:attendee_goal, name: 'inspiration', description: 'Be inspired')
+      create(:attendee_goal, name: 'skills', description: 'Improve my skills')
     end
 
     scenario 'Registering to attend from the schedule page' do
@@ -57,8 +60,12 @@ feature 'Registering to attend' do
       fill_in 'registration_company_name', with: 'Exa'
       find('.awesomplete li', text: 'Example.com').click
 
-      fill_in 'registration_primary_role', with: 'Developer'
+      select 'Design', from: 'registration_primary_role'
       fill_in 'registration_zip', with: '12345'
+
+      select 'Be inspired', from: 'registration_attendee_goal_ids'
+      select 'Improve my skills', from: 'registration_attendee_goal_ids'
+
       check 'registration_coc_acknowledgement'
       click_button 'Register'
       expect(page).to have_content('Thanks for registering!')

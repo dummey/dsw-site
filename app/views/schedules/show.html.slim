@@ -1,9 +1,13 @@
-- content_for(:title, @session.full_title)
+- content_for(:title, @session.year)
+- content_for(:subtitle, @session.full_title)
 - content_for(:extra_meta_tags) do
   meta(property="og:title" content="Denver Startup Week | #{@session.full_title}")
   meta(property="og:site_name" content="Denver Startup Week")
   meta(property="og:url" content="#{schedule_url(@session)}")
-  meta(property="og:description" content="#{@session.description}")
+  meta(property="og:description" content="#{truncate(@session.description, length: 300, separator: ' ')}")
+  meta(name="date" content="#{@session.start_datetime.iso8601}")
+  script(type="application/ld+json") = session_ld_json(@session).html_safe
+
 nav
   .section-content
     - if @session.current_year?
@@ -17,6 +21,7 @@ section.back-link-section
     = link_to 'Back to Schedule', schedules_by_year_by_day_path(year: @session.year, start_day:  @session.human_start_day.downcase), class: 'back-link'
 
 = render partial: 'layouts/shared/flash'
+= render partial: 'first_come_first_served_banner', locals: { session: @session }
 
 section.common
   div(class="section-content session-detail sm-centered #{@session.track.color}")
@@ -30,7 +35,7 @@ section.common
         h6 = @session.tags
     .date #{@session.human_start_day} #{@session.start_datetime.strftime('%-m/%-d')}
     .time #{@session.human_time_range}
-    .attendee_count = "#{@session.registrants.count} attending"
+    .attendee_count = "#{@session.registrant_count} attending"
     .description = process_with_pipeline(@session.description)
 
     - if @session.live_stream_url.present?
@@ -51,7 +56,7 @@ section.common
       .location-details
         p = @session.human_location_name
 
-- if AnnualSchedule.registration_open?
+- if AnnualSchedule.registration_open? && @session.current_year?
   section.common
     .section-content.sm-centered
       - if !registered? || !registered_for_session?(@session)

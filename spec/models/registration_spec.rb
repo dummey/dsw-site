@@ -8,6 +8,8 @@ RSpec.describe Registration, type: :model do
   it { is_expected.to belong_to(:user) }
   it { is_expected.to have_many(:session_registrations).dependent(:destroy) }
   it { is_expected.to have_many(:submissions) }
+  it { is_expected.to have_many(:registration_attendee_goals).dependent(:destroy) }
+  it { is_expected.to have_many(:attendee_goals) }
   it { is_expected.to validate_presence_of(:user) }
   it { is_expected.to validate_presence_of(:age_range) }
   it { is_expected.to validate_presence_of(:primary_role) }
@@ -58,16 +60,20 @@ RSpec.describe Registration, type: :model do
     end
 
     it 'sends multiple registration years if applicable' do
-      user.registrations.create! contact_email: 'test@example.com',
-                                 year: 2015,
-                                 age_range: Registration::AGE_RANGES.first,
-                                 primary_role: 'Testing',
-                                 coc_acknowledgement: true
-      user.registrations.create! contact_email: 'test@example.com',
-                                 year: 2016,
-                                 age_range: Registration::AGE_RANGES.first,
-                                 primary_role: 'Testing',
-                                 coc_acknowledgement: true
+      create(:registration,
+             user: user,
+             contact_email: 'test@example.com',
+             year: 2015,
+             age_range: Registration::AGE_RANGES.first,
+             primary_role: 'Testing',
+             coc_acknowledgement: true)
+      create(:registration,
+             user: user,
+             contact_email: 'test@example.com',
+             year: 2016,
+             age_range: Registration::AGE_RANGES.first,
+             primary_role: 'Testing',
+             coc_acknowledgement: true)
       expect(ListSubscriptionJob).to have_received(:perform_async).with('test@example.com',
                                                                         registered_years: %w(2015 2016))
     end

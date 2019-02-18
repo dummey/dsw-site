@@ -11,10 +11,35 @@ class Registration < ApplicationRecord
     '75 years or older'
   ].freeze
 
+  PRIMARY_ROLES = [
+    'Accounting & Finance',
+    'Contract & Freelance',
+    'Customer Service/Success',
+    'Data/Analytics',
+    'Design',
+    'Developer/Engineer',
+    'Founder/Executive',
+    'Government',
+    'Health Care',
+    'Hospitality',
+    'Information Technology',
+    'Manufacturing',
+    'Non-profit',
+    'Operations',
+    'Product',
+    'Recruiting & Human Resources',
+    'Sales & Marketing',
+    'Writing & Content',
+    'Other'
+  ].freeze
+
   belongs_to :user
   belongs_to :company, optional: true
+  belongs_to :track
   has_many :session_registrations, dependent: :destroy
   has_many :submissions, through: :session_registrations
+  has_many :registration_attendee_goals, dependent: :destroy
+  has_many :attendee_goals, through: :registration_attendee_goals
 
   validates :user,
             :age_range,
@@ -31,7 +56,7 @@ class Registration < ApplicationRecord
   after_commit :subscribe_to_list
 
   def subscribe_to_list
-    registered_years = user.registrations.map(&:year).sort.map(&:to_s)
+    registered_years = user.registrations.reload.map(&:year).sort.map(&:to_s)
     ListSubscriptionJob.perform_async(user.email,
                                 registered_years: registered_years)
   end

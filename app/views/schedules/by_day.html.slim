@@ -1,4 +1,4 @@
-- content_for(:title, "Schedule for #{formatted_start_date_for_index(@day_index, current_year_or_default, '%A %B %-d, %Y')}")
+- content_for(:title, "#{formatted_start_date_for_index(@day_index, current_year_or_default, '%A %B %-d, %Y')} Schedule")
 
 nav
   .section-content
@@ -16,6 +16,8 @@ nav
       h6 Get registered to attend sessions during Denver Startup Week and build your own custom schedule of events. Everything during the week is totally free - we just ask that you register to help us plan appropriately!
       br
       = link_to 'Register Now', new_registration_path, class: 'btn primary'
+- else 
+  = render partial: 'first_come_first_served_banner'
 
 section.common.sm-centered
   form.filters
@@ -27,7 +29,7 @@ section.common.sm-centered
         - Track.in_display_order.each do |t|
           option(value="#{t.name}" selected=("selected" if params[:filter] == t.name)) #{t.name}#{t.is_submittable? ? ' Track' : '' }
       optgroup(label="View Sessions by Cluster")
-        - Cluster.all.each do |c|
+        - Cluster.active.each do |c|
           option(value="#{c.name}" selected=("selected" if params[:filter] == c.name)) #{c.name} Cluster
     select(name="year" value="#{params[:year]}" onchange="window.location.href = this.form.elements[2].value;")
       optgroup(label="View Sessions by Year")

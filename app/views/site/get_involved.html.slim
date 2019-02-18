@@ -10,13 +10,20 @@ section.common
   .section-content.sm-centered
     h1 Present
     h6 The community plays a critical role in creating the event’s programming. Each spring, the community is asked to submit session ideas that they would like to put on during Denver Startup Week.
+
+    - unless AnnualSchedule.cfp_open?
+      - if AnnualSchedule.post_week?
+        h6 Our call for presentations is currently closed. We anticipate reopening our CFP in the spring.
+      - else
+        h6 Our call for presentations is currently closed. We hope that you will join us at some of the exciting sessions we have planned for this year!
+
     = link_to 'Learn more', page_path(page: 'program/selection'), class: 'btn-cta'
 
 section.common
   .section-content.sm-centered
     h1 Volunteer
     h6 Volunteers make up the vast majority of the Denver Startup Week organization and serve as the backbone of the event. From the Organizing Committee to our session attendants, Denver Startup Week would not be possible without the help and support of the entire community.
-    = link_to 'Learn more', '#contact-form', class: 'btn-cta'
+    = link_to 'Learn more', 'https://www.cervistech.com/acts/console.php?console_id=0282&console_type=event&ht=1', target: '_blank', class: 'btn-cta'
 
 section.common
   .section-content.sm-centered
@@ -42,7 +49,11 @@ section.common
     h6 The third annual Denver Startup Week Pitch Challenge will highlight and harness our city's entrepreneurial energy. This year’s challenge takes the typical pitch competition and spins it on its head, inviting the 15,000 attendees at DSW to cast their votes to determine the final six contenders.
     h6 With a prize package valued at $100,000 in cash, services, and product, this pitch competition will showcase the best ideas and the brightest startups from Denver’s innovation community!
 
-    = link_to 'Learn more', '#contact-form', class: 'btn-cta'
+    - dt = AnnualSchedule.current.pitch_application_close_at
+    - if dt && dt < Date.today
+      = link_to 'Learn more', '#contact-form', class: 'btn-cta'
+    - else
+      h6 Applications for this year's Pitch Challenge are now closed. We look forward to seeing you at the event!
 
 section.common
   .section-content.sm-centered

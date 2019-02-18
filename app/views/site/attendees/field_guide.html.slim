@@ -1,0 +1,44 @@
+= render partial: 'layouts/shared/attendee_nav', locals: { item: :field_guide }
+
+- content_for(:subtitle, 'Field Guide')
+
+section.common.gold
+  .section-content.sm-centered
+    h1 Your official guide, drink pass, and hookup for insider deals
+    h6 New this year, the Field Guide is your ticket to endless fun during Denver Startup Week. From the Opening Party to the Denver Startup Week Closing Bash, use your Field Guide to get two drinks at each headline event.
+    h6 Throughout the week, your Field Guide provides awesome discounts, two-for-ones and other deals at over 35 Denver hotspots, including Crema, El Five, Odell Brewing, and Park Burger - to name just a few. The discounts add up to more than $250 of savings – all in support of Denver and entrepreneurs who are making it happen!
+    h6 Whether you’re looking for a coffee between sessions, a networking drink, or a bite to eat, keep your Field Guide handy throughout the week!
+
+
+section.common
+  .section-content.sm-centered
+    .hero-image
+      = image_tag 'redesign/field-guide-cover.png'
+    h6 Don’t delay on this special guide to Denver Startup Week packed full of deals. We haven’t printed many and we fully expect to sell out by the beginning of the week.
+    h6
+      em Until Friday September 21st, Field Guides will be available for pickup at the Downtown Denver Partnership (1515 Arapahoe Street, Suite 100), between 8am and 5pm.
+    h6
+      em During Denver Startup Week, they may be picked up at Basecamp (8am - 5pm each day), at the Kickoff Breakfast, and at the opening Block Party in Skyline Park.
+
+section.common
+  .section-content.sm-centered
+    javascript:
+      (function() {
+        var frame, url = 'https://embed.nightout.com/events/denver-startup-week-field-guide/tickets';
+        window.addEventListener('message', function(e) {
+          if (e.data[0] == 'setHeight') frame.style.height = e.data[1] + 'px';
+        }, false);
+        document.addEventListener("DOMContentLoaded", function() {
+          frame = document.getElementById('embed-iframe-48876');
+          frame.setAttribute('src', url);
+        });
+      })();
+    iframe width="100%" height="680px" frameborder="0" border="0" name="Denver Startup Week Field Guide " id="embed-iframe-48876"
+
+- if field_guide_sponsors.any?
+  section.common.sponsor.sm-centered
+    .section-content
+      h1 Thanks to
+      - field_guide_sponsors.each do |sponsorship|
+        = render partial: 'layouts/shared/sponsorship', object: sponsorship
+

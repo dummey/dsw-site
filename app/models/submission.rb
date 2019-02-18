@@ -1,6 +1,6 @@
 class Submission < ApplicationRecord
 
-  PUBLIC_STATES = %w(open_for_voting accepted confirmed venue_confimed).freeze
+  PUBLIC_STATES = %w[open_for_voting accepted confirmed venue_confimed].freeze
 
   SHOW_RATE = 0.3
 
@@ -88,7 +88,7 @@ class Submission < ApplicationRecord
   end
 
   def contact_emails
-    contact_email.split(',').map(&:strip)
+    contact_email.split(%r{(\s|;|,)}).map(&:strip)
   end
 
   def self.public
@@ -145,8 +145,8 @@ class Submission < ApplicationRecord
   end
 
   def self.for_schedule
-    where(state: %w(confirmed venue_confirmed)).
-      where('start_day IS NOT NULL AND end_day IS NOT NULL')
+    where(state: %w[confirmed venue_confirmed])
+      .where('start_day IS NOT NULL AND end_day IS NOT NULL')
   end
 
   def self.for_start_day(day)
@@ -158,7 +158,12 @@ class Submission < ApplicationRecord
   end
 
   def self.with_slides_or_video
-    where("(slides_url IS NOT NULL AND slides_url <> '') OR (video_url IS NOT NULL AND video_url <> '')").order('year DESC')
+    where("(slides_url IS NOT NULL AND slides_url <> '') OR (video_url IS NOT NULL AND video_url <> '')")
+      .order('year DESC')
+  end
+
+  def self.pitch_qualifying
+    where(pitch_qualifying: true)
   end
 
   # State machine
@@ -184,13 +189,6 @@ class Submission < ApplicationRecord
   event :withdraw,            to: :withdrawn
 
   # Helpers
-
-  def has_time_set?
-    start_day &&
-    start_hour &&
-    end_day &&
-    end_hour
-  end
 
   def human_location_name
     if venue_confirmed?
@@ -268,7 +266,7 @@ class Submission < ApplicationRecord
   end
 
   def popular?
-    user_registrations.count * SHOW_RATE > (venue.try(:seated_capacity) || Venue::DEFAULT_CAPACITY)
+    registrant_count * SHOW_RATE > (venue.try(:capacity) || Venue::DEFAULT_CAPACITY)
   end
 
   def venue_confirmed?
@@ -374,6 +372,7 @@ class Submission < ApplicationRecord
                               email: email).
                         pluck(:year).
                         sort.
+                        uniq.
                         map(&:to_s)
       confirmed_years = Submission.
                         where(state: %w(accepted confirmed venue_confirmed)).
@@ -383,10 +382,11 @@ class Submission < ApplicationRecord
                               email: email).
                         pluck(:year).
                         sort.
+                        uniq.
                         map(&:to_s)
       ListSubscriptionJob.perform_async(email,
-        submittedyears: submitted_years,
-        confirmedyears: confirmed_years)
+                                        submitted_years: submitted_years,
+                                        confirmed_years: confirmed_years)
     end
   end
 
@@ -422,7 +422,7 @@ class Submission < ApplicationRecord
 
   def cached_similar_items
     order = ActiveRecord::Base.send(:sanitize_sql_array, ['position(id::text in ?)', cached_similar_item_ids.join(',')])
-    self.class.where(id: cached_similar_item_ids).order(order)
+    self.class.where(id: cached_similar_item_ids).order(Arel.sql(order))
   end
 
   private
