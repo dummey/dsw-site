@@ -350,6 +350,36 @@ ALTER SEQUENCE public.companies_id_seq OWNED BY public.companies.id;
 
 
 --
+-- Name: companies_users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.companies_users (
+    id bigint NOT NULL,
+    company_id bigint,
+    user_id bigint
+);
+
+
+--
+-- Name: companies_users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.companies_users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: companies_users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.companies_users_id_seq OWNED BY public.companies_users.id;
+
+
+--
 -- Name: feedback; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -953,8 +983,7 @@ CREATE TABLE public.users (
     provider character varying(255),
     team_position character varying,
     avatar character varying,
-    team_priority integer,
-    is_venue_host boolean DEFAULT false
+    team_priority integer
 );
 
 
@@ -996,7 +1025,7 @@ CREATE TABLE public.venues (
     suite_or_unit character varying,
     seated_capacity integer DEFAULT 0,
     extra_directions text,
-    venue_host_id integer,
+    company_id integer,
     standing_capacity integer DEFAULT 0,
     av_capabilities character varying
 );
@@ -1259,6 +1288,13 @@ ALTER TABLE ONLY public.companies ALTER COLUMN id SET DEFAULT nextval('public.co
 
 
 --
+-- Name: companies_users id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.companies_users ALTER COLUMN id SET DEFAULT nextval('public.companies_users_id_seq'::regclass);
+
+
+--
 -- Name: feedback id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1482,6 +1518,14 @@ ALTER TABLE ONLY public.comments
 
 ALTER TABLE ONLY public.companies
     ADD CONSTRAINT companies_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: companies_users companies_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.companies_users
+    ADD CONSTRAINT companies_users_pkey PRIMARY KEY (id);
 
 
 --
@@ -1787,6 +1831,20 @@ CREATE UNIQUE INDEX index_companies_on_name ON public.companies USING btree (nam
 
 
 --
+-- Name: index_companies_users_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_companies_users_on_company_id ON public.companies_users USING btree (company_id);
+
+
+--
+-- Name: index_companies_users_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_companies_users_on_user_id ON public.companies_users USING btree (user_id);
+
+
+--
 -- Name: index_feedback_on_submission_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1996,6 +2054,14 @@ ALTER TABLE ONLY public.registration_attendee_goals
 
 ALTER TABLE ONLY public.pitch_contest_votes
     ADD CONSTRAINT fk_rails_051f1858c3 FOREIGN KEY (pitch_contest_entry_id) REFERENCES public.pitch_contest_entries(id);
+
+
+--
+-- Name: venues fk_rails_077040617e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.venues
+    ADD CONSTRAINT fk_rails_077040617e FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
 --
@@ -2248,6 +2314,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180420151548'),
 ('20180503152209'),
 ('20180518145838'),
+('20180527202206'),
+('20180604045548'),
 ('20180718044128'),
 ('20180718045251'),
 ('20180718142543'),
@@ -2261,6 +2329,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180919050424'),
 ('20180923214023'),
 ('20180924163222'),
-('20180925205310');
+('20180925205310'),
+('20190221040025');
 
 
