@@ -384,9 +384,10 @@ class Submission < ApplicationRecord
                         sort.
                         uniq.
                         map(&:to_s)
-      ListSubscriptionJob.perform_async(email,
-                                        submitted_years: submitted_years,
-                                        confirmed_years: confirmed_years)
+      # TODO: Don't commit
+      # ListSubscriptionJob.perform_async(email,
+      #                                   submitted_years: submitted_years,
+      #                                   confirmed_years: confirmed_years)
     end
   end
 

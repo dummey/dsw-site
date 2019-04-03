@@ -61,6 +61,7 @@ Rails.application.routes.draw do
   end
 
   resources :venues, except: [:destroy]
+  resources :venue_availabilities, except: [:destroy]
 
   resources :feedback, only: %i(new create)
 
